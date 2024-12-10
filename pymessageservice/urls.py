@@ -21,6 +21,6 @@ from messagesApp.views import receive_message, get_messages
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('o/', include(oauth2_urls)),
-    path("api/receive-message/", receive_message, name="receive_message"),
-    path("api/get-messages/", get_messages, name="get_messages"),
+    path("api/receive-message", receive_message, name="receive_message"),
+    path("api/get-messages", get_messages, name="get_messages"),
 ]
