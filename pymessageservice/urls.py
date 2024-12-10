@@ -17,8 +17,12 @@ from django.contrib import admin
 from django.urls import path, include
 from oauth2_provider import urls as oauth2_urls
 from messagesApp.views import receive_message, get_messages
+from lobby.views import home_page
+from django.views.generic import RedirectView
 
 urlpatterns = [
+    path('home/', home_page, name="home"),
+    path('', RedirectView.as_view(pattern_name="home")),
     path('admin/', admin.site.urls),
     path('o/', include(oauth2_urls)),
     path("api/receive-message/", receive_message, name="receive_message"),

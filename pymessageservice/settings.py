@@ -23,7 +23,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-kv^13fm02#x33k(z(%=u0g#gj*u3b(-cooo34=jc@6%_*5$$%3'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = [
     'localhost',
@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'oauth2_provider',
     'rest_framework',
     'messagesApp.apps.MessagesConfig',
+    'lobby',
 ]
 
 MIDDLEWARE = [
