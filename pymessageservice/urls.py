@@ -16,7 +16,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from oauth2_provider import urls as oauth2_urls
-from messages.views import receive_message, get_messages
+from messagesApp.views import receive_message, get_messages
 
 urlpatterns = [
     path('admin/', admin.site.urls),
