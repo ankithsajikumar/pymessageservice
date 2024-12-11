@@ -20,68 +20,75 @@ DEVICES = {
     }
 }
  
-# Helper to fetch a device by ID
-def get_device(device_id):
-    return DEVICES.get(device_id)
- 
- 
 @csrf_exempt
-def sync_devices(request):
+def smart_home_fulfillment(request):
+    """Handle all Smart Home intents."""
+    if request.method == "POST":
+        data = json.loads(request.body)
+        intent = data["inputs"][0]["intent"]
+        request_id = data.get("requestId", "")
+ 
+        if intent == "action.devices.SYNC":
+            return handle_sync(request_id)
+        elif intent == "action.devices.QUERY":
+            return handle_query(request_id, data)
+        elif intent == "action.devices.EXECUTE":
+            return handle_execute(request_id, data)
+        elif intent == "action.devices.DISCONNECT":
+            return handle_disconnect(request_id)
+        else:
+            return JsonResponse({"error": "Unknown intent"}, status=400)
+ 
+    return JsonResponse({"error": "Invalid request method"}, status=405)
+ 
+def handle_sync(request_id):
     """Handle SYNC intent."""
-    if request.method == "POST":
-        data = json.loads(request.body)
-        response = {
-            "requestId": data.get("requestId"),
-            "payload": {
-                "agentUserId": "user-123",  # Replace with actual user ID
-                "devices": list(DEVICES.values())
-            }
+    return JsonResponse({
+        "requestId": request_id,
+        "payload": {
+            "agentUserId": "user-123",  # Replace with actual user ID
+            "devices": list(DEVICES.values())
         }
-        return JsonResponse(response)
+    })
  
- 
-@csrf_exempt
-def query_devices(request):
+def handle_query(request_id, data):
     """Handle QUERY intent."""
-    if request.method == "POST":
-        data = json.loads(request.body)
-        response = {"requestId": data.get("requestId"), "payload": {"devices": {}}}
+    devices = {}
+    for device in data["inputs"][0]["payload"]["devices"]:
+        device_id = device["id"]
+        if device_id in DEVICES:
+            devices[device_id] = DEVICES[device_id]["state"]
  
-        for device in data["inputs"][0]["payload"]["devices"]:
-            device_id = device["id"]
-            device_data = get_device(device_id)
-            if device_data:
-                response["payload"]["devices"][device_id] = device_data["state"]
+    return JsonResponse({
+        "requestId": request_id,
+        "payload": {"devices": devices}
+    })
  
-        return JsonResponse(response)
- 
- 
-@csrf_exempt
-def execute_devices(request):
+def handle_execute(request_id, data):
     """Handle EXECUTE intent."""
-    if request.method == "POST":
-        data = json.loads(request.body)
-        response = {"requestId": data.get("requestId"), "payload": {"commands": []}}
- 
-        for command in data["inputs"][0]["payload"]["commands"]:
-            devices = command["devices"]
+    commands = []
+    for command in data["inputs"][0]["payload"]["commands"]:
+        for device in command["devices"]:
+            device_id = device["id"]
             execution = command["execution"][0]
-            command_name = execution["command"]
-            params = execution.get("params", {})
  
-            for device in devices:
-                device_id = device["id"]
-                device_data = get_device(device_id)
-                if not device_data:
-                    continue
+            if device_id in DEVICES:
+                # Example: Handle OnOff command
+                if execution["command"] == "action.devices.commands.OnOff":
+                    DEVICES[device_id]["state"]["on"] = execution["params"]["on"]
  
-                # Example: Handle OnOff trait
-                if command_name == "action.devices.commands.OnOff":
-                    device_data["state"]["on"] = params["on"]
-                    response["payload"]["commands"].append({
-                        "ids": [device_id],
-                        "status": "SUCCESS",
-                        "states": device_data["state"]
-                    })
+                commands.append({
+                    "ids": [device_id],
+                    "status": "SUCCESS",
+                    "states": DEVICES[device_id]["state"]
+                })
  
-        return JsonResponse(response)
+    return JsonResponse({
+        "requestId": request_id,
+        "payload": {"commands": commands}
+    })
+ 
+def handle_disconnect(request_id):
+    """Handle DISCONNECT intent."""
+    # Clean up user data if needed
+    return JsonResponse({"requestId": request_id, "status": "OK"})

@@ -94,6 +94,10 @@ AUTH_USER_MODEL = 'users.User'
 
 LOGIN_URL = '/admin/login/'
 
+OAUTH2_PROVIDER = {
+    "PKCE_REQUIRED": False
+}
+
 # Password validation
 # https://docs.djangoproject.com/en/3.2/ref/settings/#auth-password-validators
 

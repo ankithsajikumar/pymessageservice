@@ -18,7 +18,7 @@ from django.urls import path, include
 from oauth2_provider import urls as oauth2_urls
 from messagesApp.views import receive_message, get_messages
 from lobby.views import home_page
-from smartIntents.views import sync_devices, query_devices, execute_devices
+from smartIntents.views import smart_home_fulfillment
 from django.views.generic import RedirectView
 
 urlpatterns = [
@@ -28,7 +28,5 @@ urlpatterns = [
     path('o/', include(oauth2_urls)),
     path("api/receive-message/", receive_message, name="receive_message"),
     path("api/get-messages/", get_messages, name="get_messages"),
-    path('smarthome/sync/', sync_devices, name='sync_devices'),
-    path('smarthome/query/', query_devices, name='query_devices'),
-    path('smarthome/execute/', execute_devices, name='execute_devices')
+    path('smarthome/fulfillment/', smart_home_fulfillment, name='smart_home_fulfillment'),
 ]
