@@ -1,81 +1,106 @@
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 import json
- 
-# Mock database for devices (replace with your actual database queries)
-DEVICES = {
-    
-}
+from smartDevices.models import Device, State
  
 @csrf_exempt
 def smart_home_fulfillment(request):
-    """Handle all Smart Home intents."""
-    if request.method == "POST":
+    try:
         data = json.loads(request.body)
-        intent = data["inputs"][0]["intent"]
-        request_id = data.get("requestId", "")
- 
-        if intent == "action.devices.SYNC":
-            return handle_sync(request_id)
-        elif intent == "action.devices.QUERY":
-            return handle_query(request_id, data)
+
+        # Extract the intent from the request
+        intent = data.get('inputs', [])[0].get('intent')
+
+        # Route to the appropriate handler based on the intent
+        if intent == "action.devices.QUERY":
+            return handle_query(data)
         elif intent == "action.devices.EXECUTE":
-            return handle_execute(request_id, data)
+            return handle_execute(data)
+        elif intent == "action.devices.SYNC":
+            return handle_sync(data)
         elif intent == "action.devices.DISCONNECT":
-            return handle_disconnect(request_id)
+            return handle_disconnect(data)
         else:
-            return JsonResponse({"error": "Unknown intent"}, status=400)
+            return JsonResponse({"error": "Intent not recognized"}, status=400)
+
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=500)
  
-    return JsonResponse({"error": "Invalid request method"}, status=405)
- 
-def handle_sync(request_id):
-    """Handle SYNC intent."""
+# Handle query intent
+def handle_query(data):
+    devices = []
+    for device_id in data['inputs'][0]['payload']['devices']:
+        try:
+            device = Device.objects.get(device_id=device_id)
+            device_state = {"on": False, "brightness": 50}  # Example state, adjust based on your model
+
+            devices.append({
+                "id": device.device_id,
+                "state": device_state
+            })
+        except Device.DoesNotExist:
+            continue
+
     return JsonResponse({
-        "requestId": request_id,
-        "payload": {
-            "agentUserId": "admin",  # Replace with actual user ID
-            "devices": list(DEVICES.values())
-        }
-    })
- 
-def handle_query(request_id, data):
-    """Handle QUERY intent."""
-    devices = {}
-    for device in data["inputs"][0]["payload"]["devices"]:
-        device_id = device["id"]
-        if device_id in DEVICES:
-            devices[device_id] = DEVICES[device_id]["state"]
- 
-    return JsonResponse({
-        "requestId": request_id,
+        "requestId": data["requestId"],
         "payload": {"devices": devices}
-    })
- 
-def handle_execute(request_id, data):
-    """Handle EXECUTE intent."""
+    }, status=200)
+
+# Handle execute intent
+def handle_execute(data):
     commands = []
-    for command in data["inputs"][0]["payload"]["commands"]:
-        for device in command["devices"]:
-            device_id = device["id"]
-            execution = command["execution"][0]
- 
-            if device_id in DEVICES:
-                # Example: Handle OnOff command
-                if execution["command"] == "action.devices.commands.OnOff":
-                    DEVICES[device_id]["state"]["on"] = execution["params"]["on"]
- 
+    for command in data['inputs'][0]['payload']['commands']:
+        for device_command in command['devices']:
+            device_id = device_command['id']
+            action = command['execution'][0]['command']  # "action.devices.commands.OnOff", etc.
+
+            try:
+                device = Device.objects.get(device_id=device_id)
+
+                if action == "action.devices.commands.OnOff":
+                    new_state = "on" if device_command['execution'][0]['params']['on'] else "off"
+                    device_state = {"on": new_state}
+                    state_obj, created = State.objects.get_or_create(key="on", value=new_state)
+                    device.states.add(state_obj)
+                    device.save()
+
                 commands.append({
                     "ids": [device_id],
                     "status": "SUCCESS",
-                    "states": DEVICES[device_id]["state"]
+                    "state": device_state
                 })
- 
+            except Device.DoesNotExist:
+                commands.append({
+                    "ids": [device_id],
+                    "status": "ERROR"
+                })
+
     return JsonResponse({
-        "requestId": request_id,
+        "requestId": data["requestId"],
         "payload": {"commands": commands}
-    })
- 
-def handle_disconnect(request_id):
+    }, status=200)
+
+# Handle sync intent
+def handle_sync(data):
+    devices = []
+    all_devices = Device.objects.all()
+
+    for device in all_devices:
+        devices.append({
+            "id": device.device_id,
+            "type": device.device_type,
+            "traits": [trait.name for trait in device.traits.all()],
+            "name": {"defaultNames": [device.name]},
+            "willReportState": device.will_report_state,
+            "roomHint": device.room
+        })
+
+    return JsonResponse({
+        "requestId": data["requestId"],
+        "payload": {"devices": devices}
+    }, status=200)
+
+def handle_disconnect(data):
     """Handle DISCONNECT intent."""
     # Clean up user data if needed
-    return JsonResponse({"requestId": request_id, "status": "OK"})
+    return JsonResponse({"requestId":  data["requestId"], "status": "OK"})

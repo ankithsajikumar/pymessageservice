@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'messagesApp.apps.MessagesConfig',
     'lobby',
     'smartIntents',
+    'smartDevices',
 ]
 
 MIDDLEWARE = [
