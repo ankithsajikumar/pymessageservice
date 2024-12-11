@@ -97,7 +97,7 @@ def handle_sync(data):
 
     return JsonResponse({
         "requestId": data["requestId"],
-        "payload": {"devices": devices}
+        "payload": {"agentUserId": "admin", "devices": devices}
     }, status=200)
 
 def handle_disconnect(data):
