@@ -4,20 +4,7 @@ import json
  
 # Mock database for devices (replace with your actual database queries)
 DEVICES = {
-    "device-1": {
-        "id": "device-1",
-        "type": "action.devices.types.LIGHT",
-        "traits": ["action.devices.traits.OnOff"],
-        "name": {
-            "defaultNames": ["Smart Light"],
-            "name": "Bedroom Light",
-            "nicknames": ["Night Light"]
-        },
-        "willReportState": False,
-        "state": {
-            "on": False
-        }
-    }
+    
 }
  
 @csrf_exempt
@@ -46,7 +33,7 @@ def handle_sync(request_id):
     return JsonResponse({
         "requestId": request_id,
         "payload": {
-            "agentUserId": "user-123",  # Replace with actual user ID
+            "agentUserId": "admin",  # Replace with actual user ID
             "devices": list(DEVICES.values())
         }
     })
