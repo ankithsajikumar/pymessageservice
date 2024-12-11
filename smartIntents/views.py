@@ -90,7 +90,7 @@ def handle_sync(data):
             "id": device.device_id,
             "type": device.device_type,
             "traits": [trait.name for trait in device.traits.all()],
-            "name": {"defaultNames": [device.name]},
+            "name": {"name": device.name},
             "willReportState": device.will_report_state,
             "roomHint": device.room
         })
