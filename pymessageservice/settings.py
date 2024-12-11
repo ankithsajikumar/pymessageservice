@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'messagesApp.apps.MessagesConfig',
     'lobby',
+    'smartIntents',
 ]
 
 MIDDLEWARE = [
