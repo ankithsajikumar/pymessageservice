@@ -95,7 +95,9 @@ AUTH_USER_MODEL = 'users.User'
 LOGIN_URL = '/admin/login/'
 
 OAUTH2_PROVIDER = {
-    "PKCE_REQUIRED": False
+    'ACCESS_TOKEN_EXPIRE_SECONDS': 3600,
+    'REFRESH_TOKEN_EXPIRE_SECONDS': 3600 * 24 * 365,
+    'PKCE_REQUIRED': False,
 }
 
 # Password validation
