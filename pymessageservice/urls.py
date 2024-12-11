@@ -19,7 +19,7 @@ from oauth2_provider import urls as oauth2_urls
 from messagesApp.views import receive_message, get_messages
 from lobby.views import home_page
 from smartIntents.views import smart_home_fulfillment
-from smartDevices.views import create_device
+from smartDevices.views import create_device, get_device, update_device, delete_device
 from django.views.generic import RedirectView
 
 urlpatterns = [
@@ -31,4 +31,7 @@ urlpatterns = [
     path("api/get-messages/", get_messages, name="get_messages"),
     path('smarthome/fulfillment/', smart_home_fulfillment, name='smart_home_fulfillment'),
     path('device/create/', create_device, name='create_device'),
+    path('device/<str:device_id>/', get_device, name='get_device'),
+    path('device/<str:device_id>/update/', update_device, name='edit_device'),
+    path('device/<str:device_id>/delete/', delete_device, name='delete_device'),
 ]
