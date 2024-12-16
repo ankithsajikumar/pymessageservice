@@ -60,7 +60,7 @@ def handle_execute(data):
                 if action == "action.devices.commands.OnOff":
                     new_state = "on" if device_command['execution'][0]['params']['on'] else "off"
                     device_state = {"on": new_state}
-                    state_obj, created = State.objects.get_or_create(key="on", value=new_state)
+                    state_obj = State.objects.get_or_create(key="on", value=new_state)
                     device.states.add(state_obj)
                     device.save()
 
