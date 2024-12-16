@@ -2,6 +2,9 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 import json
 from smartDevices.models import Device, State
+import logging
+
+logger = logging.getLogger(__name__)
  
 @csrf_exempt
 def smart_home_fulfillment(request):
@@ -56,12 +59,16 @@ def handle_execute(data):
 
             try:
                 device = Device.objects.get(device_id=device_id)
+                logger.info("Device ID: " + device.device_id)
 
                 if action == "action.devices.commands.OnOff":
-                    new_state = "on" if device_command['execution'][0]['params']['on'] else "off"
+                    logger.info("Action: " + action)
+                    new_state = command['execution'][0]['params']['on']
+                    logger.info("State: "+ str(new_state))
                     device_state = {"on": new_state}
                     state_obj = State.objects.get_or_create(key="on", value=new_state)
-                    device.states.add(state_obj)
+                    # save state seperately
+                    # device.states.add(state_obj)
                     device.save()
 
                 commands.append({
