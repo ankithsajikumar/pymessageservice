@@ -23,6 +23,7 @@ class Device(models.Model):
     room = models.CharField(max_length=100, null=True, blank=True)
     will_report_state = models.BooleanField(default=True)
     states = models.ManyToManyField(State, related_name="devices")  # Many-to-many relationship
+    states_on = models.BooleanField(default=False)
  
     def __str__(self):
         return self.name

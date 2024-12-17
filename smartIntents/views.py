@@ -2,6 +2,7 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 import json
 from smartDevices.models import Device, State
+from messagesApp.models import Message
 import logging
 
 logger = logging.getLogger(__name__)
@@ -35,7 +36,7 @@ def handle_query(data):
     for device_id in data['inputs'][0]['payload']['devices']:
         try:
             device = Device.objects.get(device_id=device_id)
-            device_state = {"on": False, "brightness": 50}  # Example state, adjust based on your model
+            device_state = {"on": device.states_on, "brightness": 50}  # Example state, adjust based on your model
 
             devices.append({
                 "id": device.device_id,
@@ -66,10 +67,13 @@ def handle_execute(data):
                     new_state = command['execution'][0]['params']['on']
                     logger.info("State: "+ str(new_state))
                     device_state = {"on": new_state}
-                    state_obj = State.objects.get_or_create(key="on", value=new_state)
+                    # state_obj = State.objects.get_or_create(key="on", value=new_state)
                     # save state seperately
                     # device.states.add(state_obj)
+                    device.states_on = new_state
                     device.save()
+                    message_text= str(device_id) + " :: state :: " + str(new_state)
+                    Message.objects.create(text=message_text)
 
                 commands.append({
                     "ids": [device_id],
