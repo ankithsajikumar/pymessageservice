@@ -72,8 +72,9 @@ def handle_execute(data):
                     # device.states.add(state_obj)
                     device.states_on = new_state
                     device.save()
-                    message_text= str(device_id) + " :: state :: " + str(new_state)
-                    Message.objects.create(text=message_text)
+                    message_topic= str(device_id) + "/power"
+                    message_text= "on" if new_state else "off"
+                    Message.objects.create(device_id=device_id, topic=message_topic, text=message_text)
 
                 commands.append({
                     "ids": [device_id],

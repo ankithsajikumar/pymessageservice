@@ -169,3 +169,4 @@ cython_debug/
 #.idea/
 pymessageservice/__pycache__/settings.cpython-37.pyc
 pymessageservice/__pycache__/urls.cpython-37.pyc
+/logs
