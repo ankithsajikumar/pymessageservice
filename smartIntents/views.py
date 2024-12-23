@@ -1,9 +1,7 @@
+import json
+import logging
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
-import json
-from smartDevices.models import Device, State
-from messagesApp.models import Message
-import logging
 from .services import handle_execute, handle_query, handle_sync, handle_disconnect
 
 logger = logging.getLogger(__name__)
