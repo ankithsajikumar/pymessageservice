@@ -1,4 +1,5 @@
 from django.db import models
+from jsonfield import JSONField
  
 class Trait(models.Model):
     name = models.CharField(max_length=100)  # e.g., "OnOff", "Brightness"
@@ -24,6 +25,7 @@ class Device(models.Model):
     will_report_state = models.BooleanField(default=True)
     states = models.ManyToManyField(State, related_name="devices")  # Many-to-many relationship
     states_on = models.BooleanField(default=False)
+    state = JSONField(default=dict)
  
     def __str__(self):
         return self.name
