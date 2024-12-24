@@ -7,14 +7,16 @@ logger = logging.getLogger(__name__)
 
 # Handle query intent
 def handle_query(data):
-    devices = []
-    for device_id in data['inputs'][0]['payload']['devices']:
+    devices = {}
+    for device_id_obj in data['inputs'][0]['payload']['devices']:
         try:
+            device_id = device_id_obj['id']
             device = Device.objects.get(device_id=device_id)
-            devices.append({
-                "id": device.device_id,
-                "state": device.state
-            })
+            devices[device_id] = {
+                "status": "SUCCESS",
+                "online": True, # TODO implement device online check
+                **device.state
+            }
         except Device.DoesNotExist:
             continue
 
