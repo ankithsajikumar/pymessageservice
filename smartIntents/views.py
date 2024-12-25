@@ -1,14 +1,15 @@
 import json
 import logging
 from django.http import JsonResponse
-from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import login_required
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
 from .services import handle_execute, handle_query, handle_sync, handle_disconnect
 
 logger = logging.getLogger(__name__)
  
-@login_required
-@csrf_exempt
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
 def smart_home_fulfillment(request):
     try:
         data = json.loads(request.body)
