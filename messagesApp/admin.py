@@ -7,7 +7,7 @@ def make_unread(modeladmin, request, queryset):
     queryset.update(is_read=False)
 
 class MessageAdmin(admin.ModelAdmin):
-    ordering = ['timestamp']
+    ordering = ['-timestamp']
     list_display = ["id", "topic", "text"]
     search_fields = ['topic', 'text']
     list_filter = ['topic']

@@ -61,7 +61,7 @@ def handle_execute(data):
     }, status=200)
 
 # Handle sync intent
-def handle_sync(data):
+def handle_sync(data, user):
     devices = []
     all_devices = Device.objects.all()
 
@@ -77,7 +77,7 @@ def handle_sync(data):
 
     return JsonResponse({
         "requestId": data["requestId"],
-        "payload": {"agentUserId": "admin", "devices": devices}
+        "payload": {"agentUserId": str(user), "devices": devices}
     }, status=200)
 
 def handle_disconnect(data):

@@ -7,4 +7,4 @@ class Message(models.Model):
     topic= models.TextField()
     text = models.TextField()
     is_read = models.BooleanField(default=False)
-    timestamp = models.DateTimeField(auto_now_add=True)  # Automatically set when a message is created
+    timestamp = models.DateTimeField(auto_now=True)  # Automatically set when a message is created/updated
