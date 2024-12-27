@@ -1,10 +1,10 @@
 from django.http import JsonResponse
-from rest_framework.decorators import api_view
-from django.views.decorators.csrf import csrf_exempt
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import AllowAny
 from .models import Message
     
 @api_view(["POST"])
-@csrf_exempt
+@permission_classes([AllowAny])
 def poll_messages(request):
     """
     Endpoint to poll messages that are not read.
