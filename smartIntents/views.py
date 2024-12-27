@@ -9,10 +9,10 @@ from .services import handle_execute, handle_query, handle_sync, handle_disconne
 logger = logging.getLogger(__name__)
  
 @api_view(["POST"])
-# @permission_classes([IsAuthenticated])  TODO fix auth for intents
+@permission_classes([IsAuthenticated])
 def smart_home_fulfillment(request):
     try:
-        data = json.loads(request.body)
+        data = request.data
 
         # Extract the intent from the request
         intent = data.get('inputs', [])[0].get('intent')
