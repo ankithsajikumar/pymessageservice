@@ -1,14 +1,15 @@
 import logging
 from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
-from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.decorators import api_view
+from django.contrib.auth.decorators import permission_required
 from .services import handle_execute, handle_query, handle_sync, handle_disconnect
 
 logger = logging.getLogger(__name__)
  
 @api_view(["POST"])
-@permission_classes([IsAuthenticated])
+@permission_required('messagesApp.add_message', raise_exception=True)
+@permission_required('smartDevices.change_device', raise_exception=True)
 def smart_home_fulfillment(request):
     try:
         data = request.data

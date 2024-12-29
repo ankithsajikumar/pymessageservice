@@ -153,47 +153,48 @@ STATIC_URL = '/static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,  # Allows the use of other loggers like 'django.db.backends'
-    'formatters': {
-        'verbose': {
-            'format': '%(asctime)s %(levelname)s %(name)s %(process)d %(thread)d %(message)s'
+if not DEBUG:
+    LOGGING = {
+        'version': 1,
+        'disable_existing_loggers': False,  # Allows the use of other loggers like 'django.db.backends'
+        'formatters': {
+            'verbose': {
+                'format': '%(asctime)s %(levelname)s %(name)s %(process)d %(thread)d %(message)s'
+            },
+            'simple': {
+                'format': '%(levelname)s %(message)s'
+            },
         },
-        'simple': {
-            'format': '%(levelname)s %(message)s'
+        'handlers': {
+            'logfile': {
+                'level': 'DEBUG',
+                'class': 'logging.handlers.TimedRotatingFileHandler',
+                'filename': BASE_DIR / 'logs/feature.log',
+                'when': 'midnight',  # Rotate logs at midnight
+                'interval': 1,  # Every 1 day
+                'backupCount': 7,  # Keep 7 days of logs
+                'formatter': 'verbose',
+            },
+            'console': {
+                'level': 'DEBUG',  # Minimum level of messages to log
+                'class': 'logging.StreamHandler',
+                'formatter': 'verbose'
+            },
         },
-    },
-    'handlers': {
-        'logfile': {
-            'level': 'DEBUG',
-            'class': 'logging.handlers.TimedRotatingFileHandler',
-            'filename': BASE_DIR / 'logs/feature.log',
-            'when': 'midnight',  # Rotate logs at midnight
-            'interval': 1,  # Every 1 day
-            'backupCount': 7,  # Keep 7 days of logs
-            'formatter': 'verbose',
+        'loggers': {
+            'django': {
+                'handlers': ['logfile'],
+                'level': 'DEBUG',
+                'propagate': True,
+            },
+            'django.utils.autoreload': {
+                'level': 'ERROR',  # Suppress logs below ERROR level
+                'handlers': ['console', 'logfile'],
+                'propagate': False,  # Prevent propagation to parent loggers
+            },
         },
-        'console': {
-            'level': 'DEBUG',  # Minimum level of messages to log
-            'class': 'logging.StreamHandler',
-            'formatter': 'verbose'
-        },
-    },
-    'loggers': {
-        'django': {
-            'handlers': ['logfile'],
-            'level': 'DEBUG',
-            'propagate': True,
-        },
-         'django.utils.autoreload': {
-            'level': 'ERROR',  # Suppress logs below ERROR level
+        'root': {
             'handlers': ['console', 'logfile'],
-            'propagate': False,  # Prevent propagation to parent loggers
+            'level': 'DEBUG',  # Log messages at this level and higher
         },
-    },
-     'root': {
-        'handlers': ['console', 'logfile'],
-        'level': 'DEBUG',  # Log messages at this level and higher
-    },
-}
+    }
