@@ -29,3 +29,7 @@ urlpatterns = [
     path("api/poll-messages/", poll_messages, name="poll_messages"),
     path('smarthome/fulfillment/', smart_home_fulfillment, name='smart_home_fulfillment')
 ]
+
+admin.site.site_header = 'MessageBridge Administration'
+admin.site.index_title = 'Entity Management'
+admin.site.site_title = 'MessageBridge Admin'
