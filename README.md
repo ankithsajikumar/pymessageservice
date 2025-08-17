@@ -71,9 +71,6 @@ pip freeze > requirements.txt
 
 ## API Endpoints
 
-- **Home Page:**  
-  - `GET /home/` — Landing page
-
 - **Poll Messages:**  
   - `POST /api/poll-messages/` — Poll unread messages and mark messages as read  
     ```sh
@@ -88,17 +85,21 @@ pip freeze > requirements.txt
   - `POST /smarthome/fulfillment/` — Handles smart home intents (SYNC, QUERY, EXECUTE, DISCONNECT)  
     - Requires appropriate permissions and payload structure.
 
-- **OAuth2:**  
-  - `/o/` — OAuth2 endpoints (see [django-oauth-toolkit docs](https://django-oauth-toolkit.readthedocs.io/en/latest/))
-
 ---
 
 ## Authentication
 
-- **OAuth2:**  
-  Obtain a token via `/o/token/` and use it in the `Authorization` header:  
+- **SSO OAuth2:**  
+  - The application uses an external SSO OAuth2 provider for authentication.
+  - Users are redirected to the SSO login page (`/admin/login/`), and after successful authentication, are redirected back to `/auth/callback/`.
+  - The backend exchanges the authorization code for an access token and logs in the user.
+  - The access token is used internally by the backend to fetch user info and manage the session.
+
   ```
-  Authorization: Bearer <access_token>
+  # Example: Logging in via SSO
+  1. Visit /admin/login/
+  2. Authenticate with the SSO provider
+  3. On success, you are redirected and logged in to the Django admin
   ```
 
 ---
@@ -144,14 +145,37 @@ pymessageservice/
 │   ├── models.py
 │   ├── admin.py
 │   └── ...
-├── lobby/
-│   ├── views.py
-│   └── ...
 └── pymessageservice/
     ├── settings.py
     ├── urls.py
     └── ...
 ```
+
+---
+
+## TODO
+
+- [ ] Implement BFF (Backend For Frontend) pattern to securely expose authentication/session info for frontend apps.
+    - The backend should handle all OAuth2 flows and session management.
+    - Frontend apps should interact only with the Django backend (BFF), not directly with the SSO provider.
+    - Provide endpoints for the frontend to fetch user info and perform authenticated actions without exposing access tokens to the browser.
+- [ ] Add API endpoints for message CRUD operations.
+- [ ] Improve error handling and logging.
+- [ ] Add unit and integration tests.
+- [ ] Enhance documentation for API usage and authentication flows.
+
+---
+
+## BFF Pattern for Frontend Apps
+
+To securely integrate frontend applications (React, Angular, etc.):
+
+- The Django backend acts as a **Backend For Frontend (BFF)**, handling all authentication and session logic.
+- The frontend communicates only with the Django backend via REST APIs.
+- The backend manages OAuth2 tokens and user sessions, never exposing sensitive tokens to the frontend.
+- The frontend can fetch user info or perform actions by calling protected endpoints on the backend, which proxies requests as needed.
+
+This approach improves security and simplifies frontend logic by centralizing authentication and session management in the backend.
 
 ---
 
