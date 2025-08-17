@@ -14,6 +14,9 @@ from pathlib import Path
 import environ
 import os
 
+# Home page
+HOME_URL = "https://hacksawrazor.pythonanywhere.com"
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -50,7 +53,6 @@ INSTALLED_APPS = [
     'users',
     'rest_framework',
     'messagesApp.apps.MessagesConfig',
-    'lobby',
     'smartIntents',
     'smartDevices',
 ]

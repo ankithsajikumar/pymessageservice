@@ -71,9 +71,6 @@ pip freeze > requirements.txt
 
 ## API Endpoints
 
-- **Home Page:**  
-  - `GET /home/` — Landing page
-
 - **Poll Messages:**  
   - `POST /api/poll-messages/` — Poll unread messages and mark messages as read  
     ```sh
@@ -147,9 +144,6 @@ pymessageservice/
 ├── users/
 │   ├── models.py
 │   ├── admin.py
-│   └── ...
-├── lobby/
-│   ├── views.py
 │   └── ...
 └── pymessageservice/
     ├── settings.py

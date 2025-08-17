@@ -14,16 +14,18 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
+from django.conf import settings
 from django.urls import path
 from messagesApp.views import poll_messages
-from lobby.views import home_page
 from smartIntents.views import smart_home_fulfillment
-from django.views.generic import RedirectView
 from users.views import login, callback
+from django.http import HttpResponseRedirect
+
+def home_redirect(request):
+    return HttpResponseRedirect(settings.HOME_URL)
 
 urlpatterns = [
-    path('home/', home_page, name="home"),
-    path('', RedirectView.as_view(pattern_name="home")),
+    path('', home_redirect),
     path("admin/login/", login, name="login"),
     path("auth/callback/", callback, name="callback"),
     path('admin/', admin.site.urls),
