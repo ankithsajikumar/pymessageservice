@@ -20,10 +20,13 @@ from messagesApp.views import poll_messages
 from lobby.views import home_page
 from smartIntents.views import smart_home_fulfillment
 from django.views.generic import RedirectView
+from users.views import login, callback
 
 urlpatterns = [
     path('home/', home_page, name="home"),
     path('', RedirectView.as_view(pattern_name="home")),
+    path("admin/login/", login, name="login"),
+    path("auth/callback/", callback, name="callback"),
     path('admin/', admin.site.urls),
     path('o/', include(oauth2_urls)),
     path("api/poll-messages/", poll_messages, name="poll_messages"),

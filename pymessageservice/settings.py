@@ -11,19 +11,25 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 
 from pathlib import Path
+import environ
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+# Loading environment variables
+env = environ.Env()
+environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
 
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-kv^13fm02#x33k(z(%=u0g#gj*u3b(-cooo34=jc@6%_*5$$%3'
+SECRET_KEY = env('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = env.bool('DEBUG', default=False)
 
 ALLOWED_HOSTS = [
     'localhost',
@@ -94,6 +100,16 @@ DATABASES = {
 AUTH_USER_MODEL = 'users.User'
 
 LOGIN_URL = '/admin/login/'
+
+# SSO details
+SSO_BASE_URL = env('SSO_BASE_URL')
+SSO_CLIENT_ID = env('SSO_CLIENT_ID')
+SSO_CLIENT_SECRET = env('SSO_CLIENT_SECRET')
+SSO_REDIRECT_URI = env('SSO_REDIRECT_URI')
+
+# Enabling redirects to http endpoints in dev servers
+if DEBUG:
+    os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
 
 OAUTH2_PROVIDER = {
     'ACCESS_TOKEN_EXPIRE_SECONDS': 3600,
