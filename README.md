@@ -61,7 +61,7 @@ python manage.py runserver
 deactivate
 ```
 
-### MISC: Store dependencies
+### MISC: Collect dependencies
 
 ```sh
 pip freeze > requirements.txt
