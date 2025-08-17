@@ -1,5 +1,5 @@
 from django.db import models
-from jsonfield import JSONField
+from django.db.models import JSONField
  
 class Trait(models.Model):
     name = models.CharField(max_length=100)  # e.g., "OnOff", "Brightness"
