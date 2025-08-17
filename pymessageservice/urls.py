@@ -14,8 +14,7 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path, include
-from oauth2_provider import urls as oauth2_urls
+from django.urls import path
 from messagesApp.views import poll_messages
 from lobby.views import home_page
 from smartIntents.views import smart_home_fulfillment
@@ -28,7 +27,6 @@ urlpatterns = [
     path("admin/login/", login, name="login"),
     path("auth/callback/", callback, name="callback"),
     path('admin/', admin.site.urls),
-    path('o/', include(oauth2_urls)),
     path("api/poll-messages/", poll_messages, name="poll_messages"),
     path('smarthome/fulfillment/', smart_home_fulfillment, name='smart_home_fulfillment')
 ]
