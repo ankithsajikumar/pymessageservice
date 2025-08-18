@@ -33,7 +33,7 @@ jobs:
       - name: Step 1 - Pull latest changes
         run: |
           RESPONSE=$(curl -s -w "%{http_code}" -o source_pull_response.json -X POST "https://www.pythonanywhere.com/api/v0${{ steps.bashconsole.outputs.console_url }}send_input/" \
-            -H "Authorization: Bearer ${{ secrets.CONSOLE_API_KEY }}" \
+            -H "Authorization: Token ${{ secrets.CONSOLE_API_KEY }}" \
             -H "Content-Type: application/json" \
             -d '{"input": "cd ~/pymessageservice\ngit pull origin\n"}')
           if [ "$RESPONSE" -ne 200 ]; then
@@ -46,7 +46,7 @@ jobs:
       - name: Step 2 - Install dependencies
         run: |
           RESPONSE=$(curl -s -w "%{http_code}" -o pip_install_response.json -X POST "https://www.pythonanywhere.com/api/v0${{ steps.bashconsole.outputs.console_url }}send_input/" \
-            -H "Authorization: Bearer ${{ secrets.CONSOLE_API_KEY }}" \
+            -H "Authorization: Token ${{ secrets.CONSOLE_API_KEY }}" \
             -H "Content-Type: application/json" \
             -d '{"input": "cd ~/pymessageservice\npip install -r requirements.txt\n"}')
           if [ "$RESPONSE" -ne 200 ]; then
@@ -59,7 +59,7 @@ jobs:
       - name: Step 3 - Collect static files
         run: |
           RESPONSE=$(curl -s -w "%{http_code}" -o collectstatic_response.json -X POST "https://www.pythonanywhere.com/api/v0${{ steps.bashconsole.outputs.console_url }}send_input/" \
-            -H "Authorization: Bearer ${{ secrets.CONSOLE_API_KEY }}" \
+            -H "Authorization: Token ${{ secrets.CONSOLE_API_KEY }}" \
             -H "Content-Type: application/json" \
             -d '{"input": "cd ~/pymessageservice\npython manage.py collectstatic --noinput\n"}')
           if [ "$RESPONSE" -ne 200 ]; then
@@ -72,7 +72,7 @@ jobs:
       - name: Step 4 - Migrate database
         run: |
           RESPONSE=$(curl -s -w "%{http_code}" -o migrate_response.json -X POST "https://www.pythonanywhere.com/api/v0${{ steps.bashconsole.outputs.console_url }}send_input/" \
-            -H "Authorization: Bearer ${{ secrets.CONSOLE_API_KEY }}" \
+            -H "Authorization: Token ${{ secrets.CONSOLE_API_KEY }}" \
             -H "Content-Type: application/json" \
             -d '{"input": "cd ~/pymessageservice\npython manage.py migrate --noinput\n"}')
           if [ "$RESPONSE" -ne 200 ]; then
@@ -85,7 +85,7 @@ jobs:
       - name: Step 5 - Reload webapp
         run: |
           RESPONSE=$(curl -s -w "%{http_code}" -o restart_response.json -X POST "https://www.pythonanywhere.com/api/v0/user/${{ vars.CONSOLE_USER_ID }}/webapps/${{ vars.CONSOLE_USER_ID }}.pythonanywhere.com/reload/" \
-            -H "Authorization: Bearer ${{ secrets.CONSOLE_API_KEY }}" \
+            -H "Authorization: Token ${{ secrets.CONSOLE_API_KEY }}" \
             -H "Content-Type: application/json")
           if [ "$RESPONSE" -ne 200 ]; then
             echo "Restart step failed (status $RESPONSE)"
