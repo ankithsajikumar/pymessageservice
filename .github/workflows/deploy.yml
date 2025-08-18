@@ -1,0 +1,94 @@
+name: Deploy Project
+
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 0: Find available consoles and extract bash console_url
+      - name: Find active consoles
+        id: bashconsole
+        run: |
+          # Make GET request and capture both response and status code
+          HTTP_RESPONSE=$(mktemp)
+          STATUS=$(curl -s -w "%{http_code}" -o $HTTP_RESPONSE -X GET "https://www.pythonanywhere.com/api/v0/user/${{ vars.CONSOLE_USER_ID }}/consoles/" -H "Authorization: Token ${{ secrets.CONSOLE_API_KEY }}")
+          if [ "$STATUS" -ne 200 ]; then
+            echo "Failed to collect deployment details (status $STATUS)"
+            cat $HTTP_RESPONSE
+            exit 1
+          fi
+          RESPONSE=$(cat $HTTP_RESPONSE)
+          # Parse for "executable":"bash" and extract "console_url"
+          CONSOLE_URL=$(echo "$RESPONSE" | python3 -c "import sys, json; items=json.load(sys.stdin); print(next((item['console_url'] for item in items if item.get('executable') == 'bash'), ''), end='')")
+          if [ -z "$CONSOLE_URL" ]; then
+            echo "No item with executable: bash found. Stopping workflow."
+            exit 1
+          fi
+          echo "console_url=$CONSOLE_URL" >> $GITHUB_OUTPUT
+
+      # Step 1: Pull latest changes
+      - name: Step 1 - Pull latest changes
+        run: |
+          RESPONSE=$(curl -s -w "%{http_code}" -o source_pull_response.json -X POST "https://www.pythonanywhere.com/api/v0${{ steps.bashconsole.outputs.console_url }}send_input/" \
+            -H "Authorization: Bearer ${{ secrets.CONSOLE_API_KEY }}" \
+            -H "Content-Type: application/json" \
+            -d '{"input": "cd ~/pymessageservice\ngit pull origin\n"}')
+          if [ "$RESPONSE" -ne 200 ]; then
+            echo "Pull step failed (status $RESPONSE)"
+            cat source_pull_response.json
+            exit 1
+          fi
+
+      # Step 2: Install dependencies
+      - name: Step 2 - Install dependencies
+        run: |
+          RESPONSE=$(curl -s -w "%{http_code}" -o pip_install_response.json -X POST "https://www.pythonanywhere.com/api/v0${{ steps.bashconsole.outputs.console_url }}send_input/" \
+            -H "Authorization: Bearer ${{ secrets.CONSOLE_API_KEY }}" \
+            -H "Content-Type: application/json" \
+            -d '{"input": "cd ~/pymessageservice\npip install -r requirements.txt\n"}')
+          if [ "$RESPONSE" -ne 200 ]; then
+            echo "Dependency install step failed (status $RESPONSE)"
+            cat pip_install_response.json
+            exit 1
+          fi
+
+      # Step 3: Collect static files
+      - name: Step 3 - Collect static files
+        run: |
+          RESPONSE=$(curl -s -w "%{http_code}" -o collectstatic_response.json -X POST "https://www.pythonanywhere.com/api/v0${{ steps.bashconsole.outputs.console_url }}send_input/" \
+            -H "Authorization: Bearer ${{ secrets.CONSOLE_API_KEY }}" \
+            -H "Content-Type: application/json" \
+            -d '{"input": "cd ~/pymessageservice\npython manage.py collectstatic --noinput\n"}')
+          if [ "$RESPONSE" -ne 200 ]; then
+            echo "Collectstatic step failed (status $RESPONSE)"
+            cat collectstatic_response.json
+            exit 1
+          fi
+
+      # Step 4: Migrate database
+      - name: Step 4 - Migrate database
+        run: |
+          RESPONSE=$(curl -s -w "%{http_code}" -o migrate_response.json -X POST "https://www.pythonanywhere.com/api/v0${{ steps.bashconsole.outputs.console_url }}send_input/" \
+            -H "Authorization: Bearer ${{ secrets.CONSOLE_API_KEY }}" \
+            -H "Content-Type: application/json" \
+            -d '{"input": "cd ~/pymessageservice\npython manage.py migrate --noinput\n"}')
+          if [ "$RESPONSE" -ne 200 ]; then
+            echo "Migrate step failed (status $RESPONSE)"
+            cat migrate_response.json
+            exit 1
+          fi
+
+      # Step 5: Reload webapp
+      - name: Step 5 - Reload webapp
+        run: |
+          RESPONSE=$(curl -s -w "%{http_code}" -o restart_response.json -X POST "https://www.pythonanywhere.com/api/v0/user/${{ vars.CONSOLE_USER_ID }}/webapps/${{ vars.CONSOLE_USER_ID }}.pythonanywhere.com/reload/" \
+            -H "Authorization: Bearer ${{ secrets.CONSOLE_API_KEY }}" \
+            -H "Content-Type: application/json")
+          if [ "$RESPONSE" -ne 200 ]; then
+            echo "Restart step failed (status $RESPONSE)"
+            cat restart_response.json
+            exit 1
+          fi
