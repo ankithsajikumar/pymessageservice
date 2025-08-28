@@ -107,6 +107,7 @@ SSO_BASE_URL = env('SSO_BASE_URL')
 SSO_CLIENT_ID = env('SSO_CLIENT_ID')
 SSO_CLIENT_SECRET = env('SSO_CLIENT_SECRET')
 SSO_REDIRECT_URI = env('SSO_REDIRECT_URI')
+SSO_AUDIENCE = "default-resource-service" # keep this till we make it dynamic
 
 # Enabling redirects to http endpoints in dev servers
 if DEBUG:
@@ -117,6 +118,7 @@ REST_FRAMEWORK = {
     # or allow read-only access for unauthenticated users.
     "DEFAULT_PERMISSION_CLASSES": ("rest_framework.permissions.IsAuthenticated",),
     "DEFAULT_AUTHENTICATION_CLASSES": [
+        "pymessageservice.authentication.JWTAuthentication",
         "rest_framework.authentication.SessionAuthentication",
         "rest_framework.authentication.BasicAuthentication",
     ],

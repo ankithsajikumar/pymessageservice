@@ -1,7 +1,10 @@
 from django.shortcuts import redirect
 from django.conf import settings
+from django.http import JsonResponse
 from requests_oauthlib import OAuth2Session
 from django.contrib.auth import login as auth_login
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
 from .models import User
 
 def login(request):
@@ -47,3 +50,13 @@ def callback(request):
     auth_login(request, user)
     return redirect("/admin/")
 
+# Test endpoint, to be removed
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def me(request):
+    claims = request.auth
+    return JsonResponse({
+        "message": "Authorized",
+        "user": request.user.username,
+        "scopes": claims.get("scope", "").split(),
+    })
