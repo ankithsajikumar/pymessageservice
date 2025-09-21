@@ -5,9 +5,12 @@ from requests_oauthlib import OAuth2Session
 from django.contrib.auth import login as auth_login
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
-from .models import User
-from django.contrib.auth.models import Group, Permission
+from django.contrib.auth.models import Permission
+from django.core.cache import cache
 import logging
+
+from .models import User
+from pymessageservice.constants import JWKS_CACHE_KEY
 
 logger = logging.getLogger(__name__)
 
@@ -108,6 +111,23 @@ def callback(request):
     except Exception as e:
         logger.error(f"Unexpected error in callback: {e}")
         return redirect('/admin/login/?error=unexpected_error')
+    
+# JWKS cache clear end-point
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def clear_jwks_cache(request):
+    try:
+        cache.delete(JWKS_CACHE_KEY)
+        return JsonResponse({
+            "status": "success",
+            "message": "Cleared JWKS cache",
+            "user": request.user.username
+        })
+    except Exception as e:
+        return JsonResponse({
+            "status": "failed",
+            "message": f"Unable to clear JWKS cache: {e}"
+        })
 
 # Test endpoint, to be removed
 @api_view(["GET"])

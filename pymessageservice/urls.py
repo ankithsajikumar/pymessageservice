@@ -18,7 +18,7 @@ from django.conf import settings
 from django.urls import path
 from messagesApp.views import poll_messages
 from smartIntents.views import smart_home_fulfillment
-from users.views import login, callback, me
+from users.views import login, callback, clear_jwks_cache, me
 from django.http import HttpResponseRedirect
 
 def home_redirect(request):
@@ -27,6 +27,7 @@ def home_redirect(request):
 urlpatterns = [
     path('', home_redirect),
     path("admin/login/", login, name="login"),
+    path('admin/clear-jwks/', clear_jwks_cache, name="clear_jwks_cache"),
     path("auth/callback/", callback, name="callback"),
     path("auth/me/", me, name="me"), # test endpoint, to be removed
     path('admin/', admin.site.urls),
