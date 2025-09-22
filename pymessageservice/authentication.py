@@ -21,7 +21,7 @@ class JWTAuthentication(BaseAuthentication):
         try:
             # Get JWKS from cache or fetch from the endpoint
             jwks_url = f"{settings.SSO_BASE_URL}/o/.well-known/jwks.json"
-            jwks_client = PyJWKClient(jwks_url, cache_keys=True, lifespan=JWKS_CACHE_LIFE_SPAN)
+            jwks_client = PyJWKClient(jwks_url, cache_keys=True)
             signing_key = jwks_client.get_signing_key_from_jwt(token)
 
             payload = jwt.decode(
