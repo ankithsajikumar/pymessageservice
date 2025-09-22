@@ -3,7 +3,15 @@ from jwt import PyJWKClient, InvalidTokenError
 from django.conf import settings
 from rest_framework.authentication import BaseAuthentication
 from rest_framework import exceptions
+
 from .constants import JWKS_CACHE_LIFE_SPAN
+
+# Create a singleton instance of PyJWKClient
+_jwks_client = PyJWKClient(
+    f"{settings.SSO_BASE_URL}/o/.well-known/jwks.json",
+    cache_keys=True,
+    lifespan=JWKS_CACHE_LIFE_SPAN
+)
 
 
 class JWTAuthentication(BaseAuthentication):
@@ -19,10 +27,7 @@ class JWTAuthentication(BaseAuthentication):
         token = auth_header.split(" ")[1]
 
         try:
-            # Get JWKS from cache or fetch from the endpoint
-            jwks_url = f"{settings.SSO_BASE_URL}/o/.well-known/jwks.json"
-            jwks_client = PyJWKClient(jwks_url, cache_keys=True)
-            signing_key = jwks_client.get_signing_key_from_jwt(token)
+            signing_key = _jwks_client.get_signing_key_from_jwt(token)
 
             payload = jwt.decode(
                 token,
