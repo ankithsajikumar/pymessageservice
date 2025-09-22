@@ -1,3 +1,3 @@
 # Global constants
 
-JWKS_CACHE_KEY = "jwks_cache"
+JWKS_CACHE_LIFE_SPAN = 3600

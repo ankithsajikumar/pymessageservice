@@ -3,8 +3,7 @@ from jwt import PyJWKClient, InvalidTokenError
 from django.conf import settings
 from rest_framework.authentication import BaseAuthentication
 from rest_framework import exceptions
-from django.core.cache import cache
-from .constants import JWKS_CACHE_KEY
+from .constants import JWKS_CACHE_LIFE_SPAN
 
 
 class JWTAuthentication(BaseAuthentication):
@@ -21,8 +20,8 @@ class JWTAuthentication(BaseAuthentication):
 
         try:
             # Get JWKS from cache or fetch from the endpoint
-            jwks = self._get_jwks()
-            jwks_client = PyJWKClient(jwks)
+            jwks_url = f"{settings.SSO_BASE_URL}/o/.well-known/jwks.json"
+            jwks_client = PyJWKClient(jwks_url, cache_keys=True, lifespan=JWKS_CACHE_LIFE_SPAN)
             signing_key = jwks_client.get_signing_key_from_jwt(token)
 
             payload = jwt.decode(
@@ -39,23 +38,6 @@ class JWTAuthentication(BaseAuthentication):
 
         user = self._get_user_from_claims(payload)
         return (user, payload)
-
-    def _get_jwks(self):
-        """
-        Fetch JWKS from cache or the SSO endpoint.
-        """
-        jwks = cache.get(JWKS_CACHE_KEY)
-
-        if not jwks:
-            # Fetch JWKS from the SSO endpoint
-            jwks_url = f"{settings.SSO_BASE_URL}/o/.well-known/jwks.json"
-            jwks_client = PyJWKClient(jwks_url)
-            jwks = jwks_client.fetch_data()
-
-            # Cache the JWKS for 24 hours
-            cache.set(JWKS_CACHE_KEY, jwks, timeout=86400)
-
-        return jwks
 
     def _get_user_from_claims(self, claims):
         """
