@@ -52,6 +52,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'users',
     'rest_framework',
+    "django_sso_client_oauth",
     'messagesApp.apps.MessagesConfig',
     'smartIntents',
     'smartDevices',
@@ -107,7 +108,16 @@ SSO_BASE_URL = env('SSO_BASE_URL')
 SSO_CLIENT_ID = env('SSO_CLIENT_ID')
 SSO_CLIENT_SECRET = env('SSO_CLIENT_SECRET')
 SSO_REDIRECT_URI = env('SSO_REDIRECT_URI')
-SSO_AUDIENCE = "default-resource-service" # keep this till we make it dynamic
+
+SSO_CONFIG = {
+     "BASE_URL": env('SSO_BASE_URL'),
+     "CLIENT_ID": env('SSO_CLIENT_ID'),
+     "CLIENT_SECRET": env('SSO_CLIENT_SECRET'),
+     "REDIRECT_URI": env('SSO_REDIRECT_URI'),
+     "SCOPE": ["read", "write"],
+     "LOGIN_REDIRECT": "/admin/",
+     "LOGIN_ERROR_REDIRECT": "/admin/login/",
+}
 
 AUTH_JWKS = {
     "ISSUER": env('SSO_BASE_URL'),

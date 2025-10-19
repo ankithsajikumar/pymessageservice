@@ -16,9 +16,9 @@ Including another URLconf
 from django.contrib import admin
 from django.conf import settings
 from django.urls import path
+from django_sso_client_oauth import views as sso_views
 from messagesApp.views import poll_messages
 from smartIntents.views import smart_home_fulfillment
-from users.views import login, callback, me
 from django.http import HttpResponseRedirect
 
 def home_redirect(request):
@@ -26,9 +26,8 @@ def home_redirect(request):
 
 urlpatterns = [
     path('', home_redirect),
-    path("admin/login/", login, name="login"),
-    path("auth/callback/", callback, name="callback"),
-    path("auth/me/", me, name="me"), # test endpoint, to be removed
+    path("admin/login/", sso_views.login, name="login"),
+    path("auth/callback/", sso_views.callback, name="callback"),
     path('admin/', admin.site.urls),
     path("api/poll-messages/", poll_messages, name="poll_messages"),
     path('smarthome/fulfillment/', smart_home_fulfillment, name='smart_home_fulfillment')
