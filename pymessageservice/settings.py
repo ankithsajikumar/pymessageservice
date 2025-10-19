@@ -109,6 +109,12 @@ SSO_CLIENT_SECRET = env('SSO_CLIENT_SECRET')
 SSO_REDIRECT_URI = env('SSO_REDIRECT_URI')
 SSO_AUDIENCE = "default-resource-service" # keep this till we make it dynamic
 
+AUTH_JWKS = {
+    "ISSUER": env('SSO_BASE_URL'),
+    "AUDIENCE": "default-resource-service", # keep this till we make it dynamic
+    "CACHE_TTL": 300,
+ }
+
 # Enabling redirects to http endpoints in dev servers
 if DEBUG:
     os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
@@ -118,7 +124,7 @@ REST_FRAMEWORK = {
     # or allow read-only access for unauthenticated users.
     "DEFAULT_PERMISSION_CLASSES": ("rest_framework.permissions.IsAuthenticated",),
     "DEFAULT_AUTHENTICATION_CLASSES": [
-        "pymessageservice.authentication.JWTAuthentication",
+        "django_auth_jwks.authentication.JWTAuthentication",
         "rest_framework.authentication.SessionAuthentication",
         "rest_framework.authentication.BasicAuthentication",
     ],
